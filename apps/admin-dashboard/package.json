@@ -1,0 +1,34 @@
+{
+  "name": "@tuya/admin-dashboard",
+  "version": "1.0.0",
+  "description": "TUYA Admin Dashboard",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3003",
+    "build": "next build",
+    "start": "next start -p 3003",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "next": "^14.0.0",
+    "@tuya/ui": "workspace:*",
+    "@tuya/api": "workspace:*",
+    "@tuya/hooks": "workspace:*",
+    "@react-google-maps/api": "^2.19.0",
+    "recharts": "^2.10.0",
+    "socket.io-client": "^4.7.0",
+    "zustand": "^4.4.0",
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0",
+    "@types/react": "^18.2.0",
+    "@types/node": "^20.0.0",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "autoprefixer": "^10.4.0"
+  }
+}

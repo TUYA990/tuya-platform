@@ -1,0 +1,71 @@
+name: Deploy to Railway
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy Backend to Railway
+        uses: railwayapp/deploy-action@v1
+        with:
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          service: tuya-backend
+          environment: production
+          workingDirectory: packages/backend
+      
+      - name: Set Backend Environment Variables
+        run: |
+          railway variable set PORT=4000
+          railway variable set NODE_ENV=production
+          railway variable set DATABASE_URL=${{ secrets.DATABASE_URL }}
+          railway variable set JWT_SECRET=${{ secrets.JWT_SECRET }}
+          railway variable set GOOGLE_MAPS_API_KEY=${{ secrets.GOOGLE_MAPS_API_KEY }}
+          railway variable set SOCKET_IO_CORS_ORIGIN=${{ secrets.SOCKET_IO_CORS_ORIGIN }}
+          railway variable set LOG_LEVEL=info
+
+  deploy-driver-app:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy Driver App to Railway
+        uses: railwayapp/deploy-action@v1
+        with:
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          service: tuya-driver-app
+          environment: production
+          workingDirectory: apps/driver-app
+
+  deploy-admin-dashboard:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Deploy Admin Dashboard to Railway
+        uses: railwayapp/deploy-action@v1
+        with:
+          token: ${{ secrets.RAILWAY_TOKEN }}
+          service: tuya-admin-dashboard
+          environment: production
+          workingDirectory: apps/admin-dashboard
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [deploy-backend, deploy-driver-app, deploy-admin-dashboard]
+    if: always()
+    steps:
+      - name: Deployment Complete
+        run: |
+          echo "🚀 Deployment to Railway Complete!"
+          echo "Backend: https://tuya-backend.railway.app"
+          echo "Driver App: https://tuya-driver-app.railway.app"
+          echo "Admin Dashboard: https://tuya-admin-dashboard.railway.app"
