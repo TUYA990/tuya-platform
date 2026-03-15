@@ -1,10 +1,10 @@
-const express = require('express');
-const cors = require('cors');
-const { createServer } = require('http');
-const { Server: SocketIOServer } = require('socket.io');
+import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import { createServer } from 'http';
+import { Server as SocketIOServer } from 'socket.io';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 require('dotenv').config();
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 
 const app = express();
 const httpServer = createServer(app);
@@ -41,7 +41,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get('/api/health', (req, res) => {
+app.get('/api/health', (req: Request, res: Response) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
@@ -50,7 +50,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/status', (req, res) => {
+app.get('/api/status', (req: Request, res: Response) => {
   res.json({ 
     status: 'running',
     version: '1.0.0',
@@ -59,52 +59,52 @@ app.get('/api/status', (req, res) => {
 });
 
 // Auth routes with stricter rate limiting
-app.post('/api/auth/register', authLimiter, (req, res) => {
+app.post('/api/auth/register', authLimiter, (req: Request, res: Response) => {
   res.json({ message: 'Register endpoint' });
 });
 
-app.post('/api/auth/login', authLimiter, (req, res) => {
+app.post('/api/auth/login', authLimiter, (req: Request, res: Response) => {
   res.json({ message: 'Login endpoint' });
 });
 
 // Socket.io events
-io.on('connection', (socket) => {
+io.on('connection', (socket: any) => {
   console.log(`User connected: ${socket.id}`);
 
   // Driver events
-  socket.on('driver:online', (data) => {
+  socket.on('driver:online', (data: any) => {
     console.log(`Driver ${data.driverId} is online`);
     socket.broadcast.emit('driver:status', { driverId: data.driverId, status: 'online' });
   });
 
-  socket.on('driver:offline', (data) => {
+  socket.on('driver:offline', (data: any) => {
     console.log(`Driver ${data.driverId} is offline`);
     socket.broadcast.emit('driver:status', { driverId: data.driverId, status: 'offline' });
   });
 
   // Ride events
-  socket.on('ride:request', (data) => {
+  socket.on('ride:request', (data: any) => {
     console.log(`Ride requested: ${data.rideId}`);
     io.emit('ride:available', data);
   });
 
-  socket.on('ride:accept', (data) => {
+  socket.on('ride:accept', (data: any) => {
     console.log(`Ride accepted: ${data.rideId}`);
     io.to(data.passengerId).emit('ride:accepted', data);
   });
 
-  socket.on('ride:start', (data) => {
+  socket.on('ride:start', (data: any) => {
     console.log(`Ride started: ${data.rideId}`);
     io.to(data.passengerId).emit('ride:started', data);
   });
 
-  socket.on('ride:complete', (data) => {
+  socket.on('ride:complete', (data: any) => {
     console.log(`Ride completed: ${data.rideId}`);
     io.to(data.passengerId).emit('ride:completed', data);
   });
 
   // Location tracking events
-  socket.on('driver:location:update', (data) => {
+  socket.on('driver:location:update', (data: any) => {
     console.log(`Driver location updated: ${data.driverId}`);
     io.to(data.rideId).emit('driver:location:changed', {
       driverId: data.driverId,
@@ -114,7 +114,7 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('ride:location:update', (data) => {
+  socket.on('ride:location:update', (data: any) => {
     console.log(`Ride location updated: ${data.rideId}`);
     io.to(data.rideId).emit('ride:location:changed', {
       rideId: data.rideId,
@@ -125,7 +125,7 @@ io.on('connection', (socket) => {
   });
 
   // Rating events
-  socket.on('ride:rate', (data) => {
+  socket.on('ride:rate', (data: any) => {
     console.log(`Ride rated: ${data.rideId}`);
     io.emit('ride:rated', data);
   });
@@ -136,7 +136,7 @@ io.on('connection', (socket) => {
 });
 
 // Error handling
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error(err);
   res.status(500).json({ error: 'Internal Server Error' });
 });

@@ -3,7 +3,7 @@ import bcryptjs from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { query } from './database';
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || 'default-secret-key';
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 
 if (!JWT_SECRET) {
@@ -19,12 +19,12 @@ export const comparePassword = async (password: string, hash: string) => {
 };
 
 export const generateToken = (userId: string, role: string) => {
-  return jwt.sign({ userId, role }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+  return jwt.sign({ userId, role }, JWT_SECRET as string, { expiresIn: JWT_EXPIRY } as any);
 };
 
 export const verifyToken = (token: string) => {
   try {
-    return jwt.verify(token, JWT_SECRET) as { userId: string; role: string };
+    return jwt.verify(token, JWT_SECRET as string) as { userId: string; role: string };
   } catch (error) {
     return null;
   }

@@ -152,7 +152,7 @@ export const smartMatchDriver = async (
     const scoredDrivers = nearestDrivers.map((driver) => ({
       ...driver,
       score:
-        (1 - driver.distance / 10) * 50 + // Distance score (50%)
+        (1 - (driver.distance || 0) / 10) * 50 + // Distance score (50%)
         (driver.rating / 5) * 30 + // Rating score (30%)
         getDriverAvailabilityScore(driver), // Availability score (20%)
     }));
